@@ -1,0 +1,41 @@
+{
+  "authorizedIps": [
+    "127.0.0.1"
+  , "localhost"
+  ]
+, "bitBucketIps": [
+    "131.103.20.165"
+  , "131.103.20.166"
+  ]
+, "accepts": [
+    {
+      "key": "repo-1"
+    , "source": "bitbucket"
+    , "branch": "production"
+    , "script": "./testscript.sh"
+    , "repository": "/marcus/project-x/"
+    }
+  , {
+      "key": "repo-2"
+    , "source": "bitbucket"
+    , "branch": "production"
+    , "script": "./mytestscript.sh"
+    , "repository": "/marcus/project-x/"
+    }
+  , {
+      "key": "repo-3"
+    , "source": "bitbucket"
+    , "branch": "staging"
+    , "script": "./mytestscript.sh"
+    , "repository": "/marcus/project-x/"
+    }
+  , {
+      "key": "repo-4"
+    , "source": "bitbucket"
+    , "branch": "production"
+    , "script": "./mytestscript.sh"
+    , "repository": "/marcus/project-y/"
+    }
+
+  ]
+}
