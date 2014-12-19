@@ -1,0 +1,23 @@
+{
+  "name": "node-dploy"
+, "version": "0.0.1"
+, "private": true
+, "scripts": {
+    "start": "node app.js"
+  , "test": "npm run test-invalidJSON && npm run test-valid && npm run test-invalidIp"
+  , "test-invalidJSON": "DEPLOY_CONFIG=./tests/configs/invalidConfig.json node_modules/mocha/bin/mocha tests/*.js -t 60000"
+  , "test-valid": "DEPLOY_CONFIG=./tests/configs/normalConfig.json DPLOY_PATH_KEY=random-string node_modules/mocha/bin/mocha tests/*.js -t 60000"
+  , "test-invalidIp": "DEPLOY_CONFIG=./tests/configs/invalidIpConfig.json node_modules/mocha/bin/mocha tests/*.js -t 60000"
+  }
+, "dependencies": {
+    "express": "4.10.6"
+  , "body-parser": "1.10.0"
+  , "underscore": "1.7.0"
+  , "forever": "0.13.0"
+  }
+, "devDependencies": {
+    "mocha":"1.21.5"
+  , "chai":"1.9.2"
+  , "supertest":"0.14.0"
+  }
+}

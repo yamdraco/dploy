@@ -1,0 +1,19 @@
+{
+  "authorizedIps": [
+    "127.0.0.1"
+  , "localhost"
+  ]
+, "bitBucketIps": [
+    "131.103.20.165"
+  , "131.103.20.166"
+  ]
+, "accepts": [
+    {
+      "key": "repo-1"
+    , "source": "bitbucket"
+    , "branch": "production"
+    , "script": "./scripts/test_scripts.sh"
+    , "repository": "/marcus/project-x/"
+    }
+  ]
+}
