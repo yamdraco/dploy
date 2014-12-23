@@ -27,10 +27,16 @@ var runScript = function(scriptFile) {
 }
 
 var path = (process.env.DPLOY_PATH_KEY) ? '/' + process.env.DPLOY_PATH_KEY + '-bitbucket' : '/bitbucket'
-app.post(path, bodyparser.json(), function(req, res) {
+app.post(path, bodyparser.json(), bodyparser.urlencoded({ extended: false }), function(req, res) {
+  try {
+    if (_.isString(req.body.payload))
+      req.body.payload = JSON.parse(req.body.payload)
+  } catch(err) {
+  }
+
   var bitbucketIps = config.bitbucketIps || []
     , authorizedIps = config.authorizedIps || []
-    , repository = req.body.repository && req.body.repository.absolute_url || ""
+    , repository = req.body.payload && req.body.payload.repository && req.body.payload.repository.absolute_url || ""
 
   // make sure the ip is authorized
   if (authorizedIps.indexOf(req.ip) >= 0 || bitbucketIps.indexOf(req.ip) >= 0) {
@@ -41,7 +47,7 @@ app.post(path, bodyparser.json(), function(req, res) {
 
     // for each commit, make sure it contains the branch we want
     var matches = _.map(accepts, function(accept) {
-      if (_.find(req.body.commits, function(commit) {
+      if (_.find(req.body.payload.commits, function(commit) {
         return accept.branch === commit.branch
       }))
         return accept
