@@ -45,20 +45,11 @@ app.post(path, bodyparser.json(), bodyparser.urlencoded({ extended: false }), fu
       return accept.repository === repository && accept.source === 'bitbucket'
     })
 
-    // for each commit, make sure it contains the branch we want
-    var matches = _.map(accepts, function(accept) {
-      if (_.find(req.body.payload.commits, function(commit) {
-        return accept.branch === commit.branch
-      }))
-        return accept
-      else 
-        return null
-    })
-    matches = _.compact(matches)
+    accepts = _.compact(accepts)
 
     res.status(200).send({
       status: 'OK'
-    , commits: _.map(matches, function(match) {
+    , commits: _.map(accepts, function(match) {
         return {
           branch: match.branch
         , repo: match.key || match.repository
@@ -66,7 +57,7 @@ app.post(path, bodyparser.json(), bodyparser.urlencoded({ extended: false }), fu
       })
     })
 
-    _.each(matches, function(match) {
+    _.each(accepts, function(match) {
       runScript(match.script)
     })
   } else {

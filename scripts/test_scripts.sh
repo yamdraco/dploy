@@ -1,7 +1,12 @@
-cd ~/app/test_app
-git f
-git co master
-git merge origin/master
-npm install
-NODE_ENV=draco PORT=61440 node_modules/forever/bin/forever -a start --uid 'test' app.js 
-
+#!/bin/bash
+cd ~<path of directory>
+git fetch
+local=`git log origin/<branch> -1 --pretty="%H"`
+origin=`git log <branch> -1 --pretty="%H"`
+if [ "$local" != "$origin" ]; then
+  node_modules/forever/bin/forever stop dining
+  git co <branch>
+  git merge origin/<branch>
+  npm install
+  NODE_ENV=testing PORT=80 node_modules/forever/bin/forever -a start --uid 'dining' app.js #running script
+fi
