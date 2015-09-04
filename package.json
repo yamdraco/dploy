@@ -14,6 +14,7 @@
   , "body-parser": "1.10.0"
   , "underscore": "1.7.0"
   , "forever": "0.13.0"
+  , "netmask": "1.0.5"
   }
 , "devDependencies": {
     "mocha":"1.21.5"

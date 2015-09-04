@@ -3,17 +3,33 @@
 var express = require('express')
   , http = require('http')
   , bodyparser = require('body-parser')
-  , config = require(process.env.DPLOY_CONFIG || './config.json')
+  , Netmask = require('netmask').Netmask
+  , fs = require('fs')
+  , block = new Netmask('192.30.252.0/22')
+  , os = require('os')
   , _ = require('underscore')
   , app = express()
 
-app.set('port', process.env.DPLOY_PORT || '60000');
+var bitbucketIps = ["131.103.20.165", "131.103.20.166"]
+
+app.set('port', process.env.DPLOY_PORT || '3000');
 
 app.get('/', function(req, res) {
   res.status(200).send({
     status: 'OK'
   })
 })
+
+var deploy = function(branch, repo) {
+  fs.readFile('./config.json', 'utf-8', function(err, res) {
+    res = JSON.parse(res)
+    _.each(res.accepts, function(accept) {
+      if (accept.branch === branch && accept.repo === repo && accept.hostname === os.hostname()) {
+        runScript(accept.script)
+      }
+    })
+  })
+}
 
 var runScript = function(scriptFile) {
   var exec = require('child_process').exec
@@ -26,45 +42,32 @@ var runScript = function(scriptFile) {
   })
 }
 
-var path = (process.env.DPLOY_PATH_KEY) ? '/' + process.env.DPLOY_PATH_KEY + '-bitbucket' : '/bitbucket'
-app.post(path, bodyparser.json(), bodyparser.urlencoded({ extended: false }), function(req, res) {
-  try {
-    if (_.isString(req.body.payload))
-      req.body.payload = JSON.parse(req.body.payload)
-  } catch(err) {
-  }
+app.post('/_deployment', bodyparser.json(), bodyparser.urlencoded({extended: false}), function(req) {
+  var branch = ""
+    , repo = ""
+    // bitbucket
+    if (bitbucketIps.indexOf(req.ip) !== -1) { 
+      try {
+        if(_.isString(req.body.payload))
+          req.body.payload = JSON.parse(req.body.payload)
+      } catch(err) {
+        return
+      }
 
-  var bitbucketIps = config.bitbucketIps || []
-    , authorizedIps = config.authorizedIps || []
-    , repository = req.body.payload && req.body.payload.repository && req.body.payload.repository.absolute_url || ""
+      repo = req.body.payload.repository.absolute_url || ""
+      if (req.body.payload.commits.length > 0) {
+        branch = req.body.payload.commits[0].branch
+      }
+      deploy(branch, repo)
+  
+    // github
+    } else if (block.contains(req.ip)) {
+      repo = req.body.repository.full_name
 
-  // make sure the ip is authorized
-  if (authorizedIps.indexOf(req.ip) >= 0 || bitbucketIps.indexOf(req.ip) >= 0) {
-    // filter by accepted commit in the right repo only && belongs to bitbucket
-    var accepts = _.filter(config.accepts, function(accept) {
-      return accept.repository === repository && accept.source === 'bitbucket'
-    })
-
-    accepts = _.compact(accepts)
-
-    res.status(200).send({
-      status: 'OK'
-    , commits: _.map(accepts, function(match) {
-        return {
-          branch: match.branch
-        , repo: match.key || match.repository
-        }
-      })
-    })
-
-    _.each(accepts, function(match) {
-      runScript(match.script)
-    })
-  } else {
-    res.status(403).send({
-      status: 'Forbidden'
-    })
-  }
+      var refs = req.body.ref.split('/')
+      branch = refs[refs.length -1]
+      deploy(branch, repo)
+    }
 })
 
 module.exports = app

@@ -11,8 +11,26 @@ $ npm install
 $ npm start    // PORT=80, and config=config.json in root folder
 ```
 
+add config.json into the folder
+add script into scripts folder
+
+# Config
+```
+{
+  "accepts": [
+    {   
+      "hostname": "test"
+    , "branch": "production"
+    , "script": "./scripts/test_scripts.sh"
+    , "repository": "/marcus/project-x/"
+    }   
+  ]
+}
+```
+hostname is the name of the server in digial ocean / amazon  
+branch is the branch you would like to listen to  
+script is the script file to run  
+repository is the repository name on github / bitbucket
+
 # Release
-
-
-
 
